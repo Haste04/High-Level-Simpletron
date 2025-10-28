@@ -32,7 +32,7 @@ public class FileHandler
             for (String line : lines)
                 pw.println(line);
         }
-        System.out.println("✅ File written successfully to " + filename);
+        System.out.println("File written successfully to " + filename);
     }
 
     public static void appendFile(String filename, String content) throws IOException 

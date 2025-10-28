@@ -87,28 +87,28 @@ public class Memory
            Memory m = new Memory(100);  
 
            while (reader.hasNextLine()) 
-{
-    String line = reader.nextLine().trim();
-    
-    if (line.isEmpty() || line.startsWith(";")) continue;
-    
-    int commentIndex = line.indexOf(';');
-    if (commentIndex != -1) 
-        line = line.substring(0, commentIndex).trim();
-    
-    if (!line.isEmpty() && Character.isDigit(line.charAt(0))) 
-    {
-        String[] parts = line.split("\\s+");
-        if (parts.length >= 2) 
-        {
-            int address = Integer.parseInt(parts[0]);
-            String code = parts[1];
-            m.addItem(address, code);
-        }
-    }
-}
-           reader.close();
-           m.dump();
+            {
+                String line = reader.nextLine().trim();
+                
+                if (line.isEmpty() || line.startsWith(";")) continue;
+                
+                int commentIndex = line.indexOf(';');
+                if (commentIndex != -1) 
+                    line = line.substring(0, commentIndex).trim();
+                
+                if (!line.isEmpty() && Character.isDigit(line.charAt(0))) 
+                {
+                    String[] parts = line.split("\\s+");
+                    if (parts.length >= 2) 
+                    {
+                        int address = Integer.parseInt(parts[0]);
+                        String code = parts[1];
+                        m.addItem(address, code);
+                    }
+                }
+            }
+            reader.close();
+            m.dump();
         }
         catch(FileNotFoundException e)
         {
