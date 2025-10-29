@@ -1,85 +1,66 @@
-//Simpletron Processor Engine
-import java.io.File;
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
 
-public class SimpletronProcessorEngine{
-    private int pc = 0;           // Program counter
+public class SimpletronProcessorEngine 
+{
+
+    private int pc = 0;           // Program Counter
     private int accumulator = 0;  // Accumulator
     private String ir;            // Instruction Register
     private String opcode;        // Current operation code
     private String operand;       // Current operand
-    private Memory memory;        // Memory object
+    private Memory memory;        // Memory object (from your separate file)
 
-    public SimpletronProcessorEngine(String filename) 
+    public SimpletronProcessorEngine() 
     {
         memory = new Memory(100);
-        loadProgram(filename);
     }
 
-    // Load program from file (e.g., test.sml)
-    private void loadProgram(String filename) 
+    public void runProgram(String inputFile) throws IOException 
     {
-    try (Scanner scanner = new Scanner(new File(filename))) 
+        String tempOutputFile = "temp.sml";  
+        CompilerProgram.compile(inputFile, tempOutputFile);  
+        List<String> machineCode = readLines(tempOutputFile); 
+        loadMachineCode(machineCode);  
+        run(); 
+
+        new File(tempOutputFile).delete();
+    }
+
+
+    private void loadMachineCode(List<String> lines) 
     {
-        while (scanner.hasNextLine()) 
+        int addr = 0;
+        for (String line : lines) 
         {
-            String line = scanner.nextLine().trim();
-            if (line.isEmpty()) continue;
-
-            // Skip non-data lines (like headers or labels)
-            if (!Character.isDigit(line.charAt(0))) continue; 
-
             String[] parts = line.split("\\s+");
-            if (parts.length < 2) continue; 
-
-            try 
+            if (parts.length >= 2) 
             {
-                int address = Integer.parseInt(parts[0]);
-                String codeStr = parts[1].replace("+", "").trim();
-                int code = Integer.parseInt(codeStr);
-                memory.addItem(address, String.format("%04d", code));
-            } 
-            catch (NumberFormatException e) 
-            {
-                System.out.println("Skipping malformed line: " + line);
+                String instr = parts[1];  // Extract the instruction (e.g., "4004" from "00 4004")
+                memory.addItem(addr++, instr);
             }
         }
-    } 
-    catch (Exception e) 
-    {
-        System.out.println("Error loading program: " + e.getMessage());
     }
-}
 
-    // Run the loaded Simpletron program
+    // Run the loaded program
     public void run() 
     {
-        while (pc < 100) 
-        {
+        while (pc < 100) {
             ir = memory.getItem(pc);
             if (ir == null) break;
-            ir = ir.replace("+", "").trim();
+            ir = ir.replaceAll("[^0-9]", "");  // Remove ALL non-digit characters (spaces, +, etc.)
             while (ir.length() < 4) ir = "0" + ir;
-
             opcode = ir.substring(0, 2);
             operand = ir.substring(2);
- 
             boolean continueExec = execute(opcode, operand);
             if (!continueExec) break;
-
-            // increment PC only if not a jump instruction
-            if (!opcode.equals("40")) 
-            {
-                pc++;
-            }
+            if (!opcode.equals("40")) pc++; // increment PC unless JUMP
         }
-
         System.out.println("\n-- PROGRAM HALTED --");
         dumpRegisters();
         memory.dump();
     }
 
-    // Execute instruction
     private boolean execute(String opcode, String operand) 
     {
         int addr = Integer.parseInt(operand);
@@ -87,8 +68,7 @@ public class SimpletronProcessorEngine{
         switch (opcode) 
         {
             case "10": // READ
-                String varName = (addr == 1) ? "a" : (addr == 2) ? "b" : "value";
-                System.out.print("Enter value for " + varName + ": ");
+                System.out.print("Enter value for variable: ");
                 data = new Scanner(System.in).nextLine();
                 while (data.length() < 4) data = "0" + data;
                 memory.addItem(addr, data);
@@ -120,7 +100,7 @@ public class SimpletronProcessorEngine{
                 break;
 
             case "43": // HALT
-                return false; // stop program
+                return false;
 
             default:
                 System.out.println("Unknown opcode: " + opcode);
@@ -128,7 +108,6 @@ public class SimpletronProcessorEngine{
         return true;
     }
 
-    // Display register contents
     private void dumpRegisters() 
     {
         System.out.println("REGISTERS:");
@@ -139,17 +118,25 @@ public class SimpletronProcessorEngine{
         System.out.println("Operand: " + operand);
     }
 
-    // Main method
-    public static void main(String[] args) 
+    private List<String> readLines(String filename) throws IOException 
     {
-        if (args.length < 1) 
+        List<String> lines = new ArrayList<>();
+        try (Scanner sc = new Scanner(new File(filename))) 
         {
-        System.out.println("Usage: java SimpletronProcessorEngine <smlFile>");
-        return;
+            while (sc.hasNextLine()) lines.add(sc.nextLine());
         }
+        return lines;
+    }
 
-        String filename = args[0]; // e.g., "test.sml"
-        SimpletronProcessorEngine s = new SimpletronProcessorEngine(filename);
-        s.run();
+    public static void main(String[] args) throws IOException 
+    {
+        if (args.length == 0) 
+        {
+            System.out.println("Usage: java SimpletronProcessorEngine <inputFile>");
+            return;
+        }
+        String inputFile = args[0];
+        SimpletronProcessorEngine engine = new SimpletronProcessorEngine();
+        engine.runProgram(inputFile);
     }
 }
