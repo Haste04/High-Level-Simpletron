@@ -16,6 +16,8 @@ public class CompilerProgram
         OPCODES.put("STORE", "21");
         OPCODES.put("ADDM", "30");
         OPCODES.put("SUBM", "31");
+        OPCODES.put("MULM", "32");   
+        OPCODES.put("DIVM", "33");
         OPCODES.put("JUMP", "40");
         OPCODES.put("JMP", "40");
         OPCODES.put("HALT", "43");  // Updated to match the table

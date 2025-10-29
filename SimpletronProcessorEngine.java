@@ -95,6 +95,20 @@ public class SimpletronProcessorEngine
                 accumulator -= Integer.parseInt(memory.getItem(addr));
                 break;
 
+            case "32": // MULM (new)
+                accumulator *= Integer.parseInt(memory.getItem(addr));
+                break;
+
+            case "33": // DIVM (new)
+                int divisor = Integer.parseInt(memory.getItem(addr));
+                if (divisor == 0) 
+                {
+                    System.out.println("Error: Division by zero!");
+                    return false; 
+                }
+                accumulator /= divisor;
+                break;
+
             case "40": // JUMP
                 pc = addr;
                 break;
