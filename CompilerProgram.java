@@ -25,8 +25,14 @@ public class CompilerProgram
 
     public static void main(String[] args) 
     {
-        String inputFile = "program.txt";
-        String outputFile = "test.sml";
+        if (args.length < 2) 
+        {
+        System.out.println("Usage: java CompilerProgram <inputFile> <outputFile>");
+        return;
+        }
+
+        String inputFile = args[0];   // "program.txt"
+        String outputFile = args[1];  // "test.sml"
 
         try 
         {

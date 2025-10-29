@@ -142,7 +142,14 @@ public class SimpletronProcessorEngine{
     // Main method
     public static void main(String[] args) 
     {
-        SimpletronProcessorEngine s = new SimpletronProcessorEngine("test.sml");
+        if (args.length < 1) 
+        {
+        System.out.println("Usage: java SimpletronProcessorEngine <smlFile>");
+        return;
+        }
+
+        String filename = args[0]; // e.g., "test.sml"
+        SimpletronProcessorEngine s = new SimpletronProcessorEngine(filename);
         s.run();
     }
 }
